@@ -13,7 +13,7 @@
 - **Dark Mode**: Toggle between light and dark themes for better readability.
 
 ### Preview
-![Preview](https://edwyndev.github.io/GESTION-REVENUE/preview.png)
+<img src="https://edwyndev.github.io/GESTION-REVENUE/preview.png">
 
 ### How to Use
 1. **Add Income**: Fill out the form on the left side of the screen to add a new income entry.
@@ -63,7 +63,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **Mode Sombre**: Basculez entre les thèmes clair et sombre pour une meilleure lisibilité.
 
 ### Aperçu
-![Aperçu](https://edwyndev.github.io/GESTION-REVENUE/preview.png)
+<img src="https://edwyndev.github.io/GESTION-REVENUE/preview.png">
 
 ### Comment Utiliser
 1. **Ajouter un Revenu**: Remplissez le formulaire sur le côté gauche de l'écran pour ajouter une nouvelle entrée de revenu.
