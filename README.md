@@ -1,5 +1,11 @@
 ## English
 
+# GESTION-REVENUE
+
+**GESTION-REVENUE** is a web application designed to help users manage and track their income efficiently. It provides a user-friendly interface to add, edit, and delete income entries, along with powerful filtering and export options. The application also includes visual statistics and charts to help users analyze their income over time.
+
+![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg) ![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+
 ### Overview
 **GESTION-REVENUE** is a web application designed to help users manage and track their income efficiently. It provides a user-friendly interface to add, edit, and delete income entries, along with powerful filtering and export options. The application also includes visual statistics and charts to help users analyze their income over time.
 
@@ -15,7 +21,7 @@
 ### Preview
 <img src="https://edwyndev.github.io/GESTION-REVENUE/preview.png">
 
-### How to Use
+### Usage/Examples
 1. **Add Income**: Fill out the form on the left side of the screen to add a new income entry.
 2. **Filter Income**: Use the filters to narrow down the income entries based on date, category, or amount.
 3. **View Statistics**: Check the statistics cards for an overview of your income.
@@ -43,10 +49,18 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/YourFeatureName`).
 5. Open a pull request.
 
+### Roadmap
+- **Future Features**: Consider adding budgeting tools and integration with bank APIs for automated income tracking.
+
+### FAQ
+**Q: Is there a mobile version?**  
+A: Yes, the application is responsive and works on mobile devices.
+
+**Q: Can I import my existing data?**  
+A: Currently, we only support data export, but we plan to add import functionality in the future.
+
 ### License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
 
 ## Français
 
