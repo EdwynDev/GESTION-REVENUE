@@ -746,7 +746,7 @@
         function getMonthlyData() {
             const monthlyData = {};
             filteredRevenues.forEach(revenue => {
-                const monthYear = new Date(revenue.date);
+                const monthYear = new Date(revenue.date).getMonth();
                 if (!monthlyData[monthYear]) {
                     monthlyData[monthYear] = 0;
                 }
