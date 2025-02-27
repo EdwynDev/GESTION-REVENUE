@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Revenus Pro</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <style>
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .scale-in {
+            animation: scaleIn 0.3s ease-in-out;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 transition-all">
+    <div class="min-h-screen flex flex-col">
+        <!-- Barre de navigation -->
+        <nav class="bg-white dark:bg-gray-800 shadow-md px-6 py-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-chart-line text-blue-500 text-xl"></i>
+                    <h1 class="text-2xl font-bold dark:text-white">FinanceTracker</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="bg-gray-200 dark:bg-gray-700 px-3 py-2 rounded-full transition-all">
+                        <i class="fas fa-moon dark:text-yellow-300 text-gray-600"></i>
+                    </button>
+                    <button id="exportMenuBtn"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-all">
+                        <i class="fas fa-download mr-2"></i>Exporter
+                    </button>
+                    <div id="exportMenu"
+                        class="hidden absolute mt-40 mr-8 bg-white dark:bg-gray-800 shadow-lg rounded-lg z-10">
+                        <div class="py-1">
+                            <button onclick="exportToJSON()"
+                                class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white">
+                                <i class="fas fa-file-code mr-2 text-purple-500"></i>Exporter en JSON
+                            </button>
+                            <button onclick="exportToCSV()"
+                                class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white">
+                                <i class="fas fa-file-csv mr-2 text-green-500"></i>Exporter en CSV
+                            </button>
+                            <button onclick="exportToPDF()"
+                                class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white">
+                                <i class="fas fa-file-pdf mr-2 text-red-500"></i>Exporter en PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="container mx-auto p-4 flex-1">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Formulaire pour ajouter un revenu -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-all scale-in">
+                        <h2 class="text-xl font-semibold mb-4 dark:text-white flex items-center">
+                            <i class="fas fa-plus-circle text-green-500 mr-2"></i>Ajouter un Revenu
+                        </h2>
+                        <form id="revenueForm" class="space-y-4">
+                            <div>
+                                <label for="description"
+                                    class="block text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-pen text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="description" name="description" required
+                                        class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="amount" class="block text-gray-700 dark:text-gray-300 mb-1">Montant
+                                    (€)</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-euro-sign text-gray-400"></i>
+                                    </div>
+                                    <input type="number" id="amount" name="amount" step="0.01" required
+                                        class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="date" class="block text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar text-gray-400"></i>
+                                    </div>
+                                    <input type="date" id="date" name="date" required
+                                        class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="category"
+                                    class="block text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-tag text-gray-400"></i>
+                                    </div>
+                                    <select id="category" name="category"
+                                        class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                                        <option value="Salaire">Salaire</option>
+                                        <option value="Freelance">Freelance</option>
+                                        <option value="Dividendes">Dividendes</option>
+                                        <option value="Remboursement">Remboursement</option>
+                                        <option value="Autres">Autres</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button type="submit"
+                                    class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                                    <i class="fas fa-save mr-2"></i>Ajouter
+                                </button>
+                                <button type="reset"
+                                    class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-all focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Filtres -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mt-6 transition-all scale-in">
+                        <h2 class="text-xl font-semibold mb-4 dark:text-white flex items-center">
+                            <i class="fas fa-filter text-blue-500 mr-2"></i>Filtres
+                        </h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="filterDateFrom"
+                                    class="block text-gray-700 dark:text-gray-300 mb-1">Du</label>
+                                <input type="date" id="filterDateFrom"
+                                    class="w-full px-4 py-2 border rounded-md dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                            </div>
+                            <div>
+                                <label for="filterDateTo" class="block text-gray-700 dark:text-gray-300 mb-1">Au</label>
+                                <input type="date" id="filterDateTo"
+                                    class="w-full px-4 py-2 border rounded-md dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                            </div>
+                            <div>
+                                <label for="filterCategory"
+                                    class="block text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
+                                <select id="filterCategory"
+                                    class="w-full px-4 py-2 border rounded-md dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                                    <option value="">Toutes les catégories</option>
+                                    <option value="Salaire">Salaire</option>
+                                    <option value="Freelance">Freelance</option>
+                                    <option value="Dividendes">Dividendes</option>
+                                    <option value="Remboursement">Remboursement</option>
+                                    <option value="Autres">Autres</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="filterAmount" class="block text-gray-700 dark:text-gray-300 mb-1">Montant
+                                    minimum</label>
+                                <input type="number" id="filterAmount" placeholder="Montant min"
+                                    class="w-full px-4 py-2 border rounded-md dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="applyFilters()"
+                                    class="flex-1 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-all">
+                                    <i class="fas fa-check mr-2"></i>Appliquer
+                                </button>
+                                <button onclick="clearFilters()"
+                                    class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-all">
+                                    <i class="fas fa-times mr-2"></i>Réinitialiser
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colonne centrale avec stats et graphiques -->
+                <div class="lg:col-span-2">
+                    <!-- Cartes de statistiques -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md transition-all scale-in">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                                    <i class="fas fa-euro-sign text-blue-500 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total des revenus
+                                    </h3>
+                                    <p id="totalRevenue" class="text-2xl font-bold dark:text-white">0 €</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md transition-all scale-in">
+                            <div class="flex items-center">
+                                <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+                                    <i class="fas fa-calculator text-green-500 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Moyenne mensuelle
+                                    </h3>
+                                    <p id="averageRevenue" class="text-2xl font-bold dark:text-white">0 €</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md transition-all scale-in">
+                            <div class="flex items-center">
+                                <div class="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
+                                    <i class="fas fa-receipt text-purple-500 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre de revenus
+                                    </h3>
+                                    <p id="revenueCount" class="text-2xl font-bold dark:text-white">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graphiques -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6 transition-all scale-in">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold dark:text-white flex items-center">
+                                <i class="fas fa-chart-line text-blue-500 mr-2"></i>Analyse des Revenus
+                            </h2>
+                            <div>
+                                <button id="viewMonthly"
+                                    class="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-3 py-1 rounded-md mr-2 transition-all focus:outline-none active-chart-btn">
+                                    Mensuel
+                                </button>
+                                <button id="viewCategory"
+                                    class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-md transition-all focus:outline-none">
+                                    Par catégorie
+                                </button>
+                            </div>
+                        </div>
+                        <div id="chartContainer" class="h-64">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Tableau des revenus -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-all scale-in">
+                        <h2 class="text-xl font-semibold mb-4 dark:text-white flex items-center">
+                            <i class="fas fa-list-ul text-blue-500 mr-2"></i>Liste des Revenus
+                        </h2>
+                        <div class="overflow-x-auto">
+                            <table id="revenueTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Description</th>
+                                        <th
+                                            class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Catégorie</th>
+                                        <th
+                                            class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Montant</th>
+                                        <th
+                                            class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Date</th>
+                                        <th
+                                            class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="revenueTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    <!-- Rempli dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="paginationContainer" class="flex justify-between items-center mt-4">
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                <span id="paginationInfo">Affichage de 0-0 sur 0</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button id="prevPage"
+                                    class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded disabled:opacity-50 transition-all dark:text-white">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button id="nextPage"
+                                    class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded disabled:opacity-50 transition-all dark:text-white">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Pied de page -->
+        <footer class="bg-white dark:bg-gray-800 mt-8 py-4 shadow-inner">
+            <div class="container mx-auto px-6 text-center text-gray-600 dark:text-gray-400">
+                <p>© 2025 FinanceTracker - Gestion simplifiée de vos revenus</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal d'édition -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full scale-in">
+            <h2 class="text-xl font-semibold mb-4 dark:text-white">Modifier le Revenu</h2>
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="editId">
+                <div>
+                    <label for="editDescription" class="block text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                    <input type="text" id="editDescription" name="editDescription" required
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
+                <div>
+                    <label for="editAmount" class="block text-gray-700 dark:text-gray-300 mb-1">Montant (€)</label>
+                    <input type="number" id="editAmount" name="editAmount" step="0.01" required
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
+                <div>
+                    <label for="editDate" class="block text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                    <input type="date" id="editDate" name="editDate" required
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
+                <div>
+                    <label for="editCategory" class="block text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
+                    <select id="editCategory" name="editCategory" required
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                        <option value="Salaire">Salaire</option>
+                        <option value="Freelance">Freelance</option>
+                        <option value="Dividendes">Dividendes</option>
+                        <option value="Remboursement">Remboursement</option>
+                        <option value="Autres">Autres</option>
+                    </select>
+                </div>
+                <div class="flex space-x-2">
+                    <button type="submit"
+                        class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all">
+                        <i class="fas fa-save mr-2"></i>Enregistrer
+                    </button>
+                    <button type="button" onclick="closeEditModal()"
+                        class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-all">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full scale-in">
+            <h2 class="text-xl font-semibold mb-4 dark:text-white">Confirmer la suppression</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Êtes-vous sûr de vouloir supprimer ce revenu ? Cette action
+                est irréversible.</p>
+            <input type="hidden" id="deleteId">
+            <div class="flex space-x-2">
+                <button onclick="confirmDelete()"
+                    class="flex-1 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-all">
+                    <i class="fas fa-trash-alt mr-2"></i>Supprimer
+                </button>
+                <button onclick="closeDeleteModal()"
+                    class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-all">
+                    <i class="fas fa-times mr-2"></i>Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notificationContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2"></div>
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <!-- Date-fns pour manipulation des dates -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.29.3/date-fns.min.js"></script>
+    <!-- JavaScript -->
+    <script>
+        // Variables globales
+        let allRevenues = [];
+        let filteredRevenues = [];
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let revenueChart = null;
+        let currentChartType = 'monthly';
+
+        // Initialisation de l'application
+        document.addEventListener('DOMContentLoaded', function () {
+            // Chargement des données
+            loadRevenues();
+
+            // Mise en place des gestionnaires d'événements
+            document.getElementById('revenueForm').addEventListener('submit', addRevenue);
+            document.getElementById('editForm').addEventListener('submit', updateRevenue);
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            document.getElementById('exportMenuBtn').addEventListener('click', toggleExportMenu);
+            document.getElementById('viewMonthly').addEventListener('click', () => switchChartView('monthly'));
+            document.getElementById('viewCategory').addEventListener('click', () => switchChartView('category'));
+            document.getElementById('nextPage').addEventListener('click', nextPage);
+            document.getElementById('prevPage').addEventListener('click', prevPage);
+
+            // Fermer le menu d'exportation si on clique ailleurs
+            document.addEventListener('click', function (event) {
+                const exportMenu = document.getElementById('exportMenu');
+                const exportBtn = document.getElementById('exportMenuBtn');
+                if (!exportBtn.contains(event.target) && !exportMenu.contains(event.target)) {
+                    exportMenu.classList.add('hidden');
+                }
+            });
+
+            // Initialisation des dates de filtre à la période en cours
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            document.getElementById('filterDateFrom').valueAsDate = firstDayOfMonth;
+            document.getElementById('filterDateTo').valueAsDate = lastDayOfMonth;
+
+            // Initialisation de la date d'ajout à aujourd'hui
+            document.getElementById('date').valueAsDate = today;
+        });
+
+        // Gestion des revenus
+        function loadRevenues() {
+            allRevenues = JSON.parse(localStorage.getItem('revenues')) || [];
+
+            // Tri par date décroissante
+            allRevenues.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Application des filtres par défaut
+            applyFilters();
+
+            // Mise à jour des statistiques
+            updateStats();
+
+            // Mise à jour des graphiques
+            updateCharts();
+        }
+
+        function addRevenue(event) {
+            event.preventDefault();
+
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const date = document.getElementById('date').value;
+            const category = document.getElementById('category').value;
+
+            if (!description || isNaN(amount) || !date) {
+                showNotification('Veuillez remplir tous les champs correctement.', 'error');
+                document.getElementById('revenueForm').classList.add('shake');
+                setTimeout(() => document.getElementById('revenueForm').classList.remove('shake'), 500);
+                return;
+            }
+
+            const revenue = {
+                id: Date.now(), // Génération d'un ID unique
+                description,
+                amount,
+                date,
+                category,
+                createdAt: new Date().toISOString()
+            };
+
+            allRevenues.push(revenue);
+            localStorage.setItem('revenues', JSON.stringify(allRevenues));
+
+            loadRevenues();
+            document.getElementById('revenueForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+
+            showNotification('Revenu ajouté avec succès !', 'success');
+        }
+
+        function showEditModal(id) {
+            const revenue = allRevenues.find(rev => rev.id === id);
+            if (!revenue) return;
+
+            document.getElementById('editId').value = revenue.id;
+            document.getElementById('editDescription').value = revenue.description;
+            document.getElementById('editAmount').value = revenue.amount;
+            document.getElementById('editDate').value = revenue.date;
+            document.getElementById('editCategory').value = revenue.category || 'Autres';
+
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editModal').classList.add('flex');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+        }
+        function updateRevenue(event) {
+            event.preventDefault();
+
+            const id = parseInt(document.getElementById('editId').value);
+            const description = document.getElementById('editDescription').value;
+            const amount = parseFloat(document.getElementById('editAmount').value);
+            const date = document.getElementById('editDate').value;
+            const category = document.getElementById('editCategory').value;
+
+            if (!description || isNaN(amount) || !date) {
+                showNotification('Veuillez remplir tous les champs correctement.', 'error');
+                return;
+            }
+
+            const revenueIndex = allRevenues.findIndex(rev => rev.id === id);
+            if (revenueIndex === -1) return;
+
+            allRevenues[revenueIndex] = {
+                ...allRevenues[revenueIndex],
+                description,
+                amount,
+                date,
+                category
+            };
+
+            localStorage.setItem('revenues', JSON.stringify(allRevenues));
+            loadRevenues();
+            closeEditModal();
+            showNotification('Revenu mis à jour avec succès !', 'success');
+        }
+
+        function showDeleteModal(id) {
+            document.getElementById('deleteId').value = id;
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteModal').classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.getElementById('deleteModal').classList.remove('flex');
+        }
+
+        function confirmDelete() {
+            const id = parseInt(document.getElementById('deleteId').value);
+            allRevenues = allRevenues.filter(rev => rev.id !== id);
+            localStorage.setItem('revenues', JSON.stringify(allRevenues));
+            loadRevenues();
+            closeDeleteModal();
+            showNotification('Revenu supprimé avec succès !', 'success');
+        }
+
+        // Fonctions de filtrage
+        function applyFilters() {
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+            const category = document.getElementById('filterCategory').value;
+            const amount = parseFloat(document.getElementById('filterAmount').value);
+
+            filteredRevenues = allRevenues.filter(revenue => {
+                const revenueDate = new Date(revenue.date);
+                const fromDate = dateFrom ? new Date(dateFrom) : null;
+                const toDate = dateTo ? new Date(dateTo) : null;
+
+                const dateCondition = (!fromDate || revenueDate >= fromDate) && (!toDate || revenueDate <= toDate);
+                const categoryCondition = !category || revenue.category === category;
+                const amountCondition = isNaN(amount) || revenue.amount >= amount;
+
+                return dateCondition && categoryCondition && amountCondition;
+            });
+
+            currentPage = 1;
+            updateTable();
+            updateStats();
+            updateCharts();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterAmount').value = '';
+            applyFilters();
+        }
+
+        // Mise à jour de la table
+        function updateTable() {
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedRevenues = filteredRevenues.slice(startIndex, endIndex);
+
+            const tableBody = document.getElementById('revenueTableBody');
+            tableBody.innerHTML = '';
+
+            paginatedRevenues.forEach(revenue => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">${revenue.description}</td>
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">${revenue.category}</td>
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">${revenue.amount.toFixed(2)} €</td>
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">${new Date(revenue.date).toLocaleDateString('fr-FR')}</td>
+                <td class="px-4 py-3 text-right">
+                    <button onclick="showEditModal(${revenue.id})" class="text-blue-500 hover:text-blue-700 mr-2">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="showDeleteModal(${revenue.id})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+                tableBody.appendChild(row);
+            });
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalRows = filteredRevenues.length;
+            const startIndex = (currentPage - 1) * rowsPerPage + 1;
+            const endIndex = Math.min(startIndex + rowsPerPage - 1, totalRows);
+
+            document.getElementById('paginationInfo').textContent = `Affichage de ${startIndex}-${endIndex} sur ${totalRows}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = endIndex >= totalRows;
+        }
+
+        function nextPage() {
+            const totalRows = filteredRevenues.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateTable();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateTable();
+            }
+        }
+
+        // Mise à jour des statistiques
+        function updateStats() {
+            const totalRevenue = filteredRevenues.reduce((sum, revenue) => sum + revenue.amount, 0);
+            const averageRevenue = totalRevenue / filteredRevenues.length || 0;
+            const revenueCount = filteredRevenues.length;
+
+            document.getElementById('totalRevenue').textContent = `${totalRevenue.toFixed(2)} €`;
+            document.getElementById('averageRevenue').textContent = `${averageRevenue.toFixed(2)} €`;
+            document.getElementById('revenueCount').textContent = revenueCount;
+        }
+
+        // Mise à jour des graphiques
+        function updateCharts() {
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            const data = currentChartType === 'monthly' ? getMonthlyData() : getCategoryData();
+
+            revenueChart = new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + ' €';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: currentChartType === 'category',
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        function getMonthlyData() {
+            const monthlyData = {};
+            filteredRevenues.forEach(revenue => {
+                const monthYear = new Date(revenue.date);
+                if (!monthlyData[monthYear]) {
+                    monthlyData[monthYear] = 0;
+                }
+                monthlyData[monthYear] += revenue.amount;
+            });
+
+            const labels = Object.keys(monthlyData);
+            const data = Object.values(monthlyData);
+
+            return {
+                labels,
+                datasets: [{
+                    label: 'Revenus mensuels',
+                    data,
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                }]
+            };
+        }
+
+        function getCategoryData() {
+            const categoryData = {};
+            filteredRevenues.forEach(revenue => {
+                const category = revenue.category || 'Autres';
+                if (!categoryData[category]) {
+                    categoryData[category] = 0;
+                }
+                categoryData[category] += revenue.amount;
+            });
+
+            const labels = Object.keys(categoryData);
+            const data = Object.values(categoryData);
+
+            return {
+                labels,
+                datasets: [{
+                    label: 'Revenus par catégorie',
+                    data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+        }
+
+        function switchChartView(type) {
+            currentChartType = type;
+            updateCharts();
+
+            document.getElementById('viewMonthly').classList.toggle('active-chart-btn', type === 'monthly');
+            document.getElementById('viewCategory').classList.toggle('active-chart-btn', type === 'category');
+        }
+
+        // Fonctions d'exportation
+        function exportToJSON() {
+            const dataStr = JSON.stringify(filteredRevenues, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'revenues.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToCSV() {
+            const headers = ['Description', 'Catégorie', 'Montant', 'Date'];
+            const rows = filteredRevenues.map(revenue => [
+                revenue.description,
+                revenue.category,
+                revenue.amount.toFixed(2),
+                new Date(revenue.date).toLocaleDateString('fr-FR')
+            ]);
+
+            const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+            const dataBlob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'revenues.csv';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToPDF() {
+            const doc = new jsPDF();
+            doc.text('Liste des Revenus', 10, 10);
+            const headers = ['Description', 'Catégorie', 'Montant', 'Date'];
+            const rows = filteredRevenues.map(revenue => [
+                revenue.description,
+                revenue.category,
+                revenue.amount.toFixed(2),
+                new Date(revenue.date).toLocaleDateString('fr-FR')
+            ]);
+
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                startY: 20
+            });
+
+            doc.save('revenues.pdf');
+        }
+
+        // Gestion du thème
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        // Affichage des notifications
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `px-4 py-2 rounded-md shadow-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                }`;
+            notification.textContent = message;
+
+            const container = document.getElementById('notificationContainer');
+            container.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('opacity-0');
+                setTimeout(() => container.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // Gestion du menu d'exportation
+        function toggleExportMenu() {
+            const exportMenu = document.getElementById('exportMenu');
+            exportMenu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+
+</html>
